@@ -1,0 +1,23 @@
+#!/bin/bash
+transparency=14
+
+mkdir -p ~/.slock
+cd ~/.slock
+xwininfo -root -children > .before
+slock & 
+slock=$!
+sleep 1
+xwininfo -root -children > .after
+window_id=$(diff .before .after | grep -oE '0x[0-9]+')
+compton-trans -w $window_id $transparency & 
+
+while ps -p $slock
+do
+  echo $(pgrep slock)
+  
+  video=$(ls -1 videos | sort -R | tail -n 1)
+  seconds=$(grep "$video" seconds | grep -oE '^[0-9]+')
+  position=$(shuf -i 1-$seconds -n 1)
+  
+  mplayer -ss $position -nosound -fs videos/"$video"
+done

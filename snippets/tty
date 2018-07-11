@@ -1,0 +1,5 @@
+$ python
+>>> import pty
+>>> pty.spawn("/bin/bash")
+$ export PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
+$ cat local.txt

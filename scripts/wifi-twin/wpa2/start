@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo 1 > /proc/sys/net/ipv4/ip_forward
+iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
+ifconfig wlan1 192.168.1.1 netmask 255.255.255.0 up
+xterm -e "sleep 2; hostapd hostapd.conf; sleep 1000" &
+sleep 1
+xterm -e "sleep 2; dhcpd -f -cf dhcp.conf -user test -lf dhcp.leases wlan1; sleep 1000" &
+sleep 1

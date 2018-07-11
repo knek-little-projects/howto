@@ -1,0 +1,4 @@
+echo 1 > /proc/sys/net/ipv4/ip_forward
+airbase-ng wlan0mon -x 1000 -e test3
+ifconfig at0 192.168.1.1 netmask 255.255.255.0 up
+dhcpd -d -f -cf dhcp.conf at0

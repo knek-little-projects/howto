@@ -1,0 +1,29 @@
+#!/bin/bash
+# see ~/howto/rouge_ap.html
+INPUT=wlan1
+OUTPUT=wlan0
+essid=test3
+
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+airmon-ng start ${INPUT}
+xterm -e "airbase-ng ${INPUT}mon -x 1000 -e \"$essid\"" &
+sleep 3
+
+ifconfig at0 192.168.1.1 netmask 255.255.255.0 up
+route add -net 192.168.1.0 netmask 255.255.255.0 gw 192.168.1.1
+echo > '/var/lib/dhcp/dhcpd.leases'
+xterm -e "dhcpd -d -f -cf dhcp.conf at0" &
+
+
+iptables --flush
+iptables --table nat --flush
+iptables --delete-chain
+iptables --table nat --delete-chain
+iptables -P FORWARD ACCEPT
+
+iptables -t filter -A FORWARD -i at0 -j ACCEPT
+iptables -t nat -A POSTROUTING -o ${OUTPUT} -j MASQUERADE
+
+# iptables -t nat -A PREROUTING -p tcp --destination-port 80 -j REDIRECT --to-port 10000
+
