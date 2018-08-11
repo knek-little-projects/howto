@@ -70,7 +70,7 @@ ssh -qnCNT -R 9000:SITE:80 user@remote
 # т.е. не получится сделать ssh -R 23:other:22 test@127.0.0.1, но можно сделать ssh -R 12345:other:22
 
 # SOCKS4 прокси
-sshc -qnCNT -D 8123 qwe  # Compress, quiet, Nologin
+ssh -qnCNT -D 8123 qwe  # Compress, quiet, Nologin
 
 # NOTES:
 # https://unix.stackexchange.com/questions/29912/how-do-i-know-if-my-ssh-tunnel-is-created-successfully
