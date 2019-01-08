@@ -1,0 +1,7 @@
+#!/bin/bash
+# https://stackoverflow.com/questions/3258243/check-if-pull-needed-in-git
+cd "$1"
+git fetch
+count="$(git rev-list HEAD...origin/master --count)"
+echo "$count"
+[[ "$count" == "0" ]]
